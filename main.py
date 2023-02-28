@@ -10,7 +10,7 @@ from PyPDF2 import PdfReader
 folder_path = 'C:\\Users\\ReneHess\\OneDrive - LexiFi\\Documents\\test data'
 
 # Set keywords to search for
-keywords = ['Averaging Dates:']
+keywords = [['Review Dates:', 400], ['Averaging Dates:',400], ['Maturity Date:',45], ['Issue Date:',25]]
 def extract_dates(text, keyword, max_distance):
     # Find the index of the keyword in the text
     keyword_index = text.find(keyword)
@@ -54,17 +54,22 @@ for filename in os.listdir(folder_path):
             sp_id = extract_ids(filename)
             reader = PdfReader(os.path.join(folder_path, filename))
             # Loop through all pages in the PDF
+            rec = {'id': sp_id}
             for page in reader.pages:
                 page_text = page.extract_text()
-                for keyword in keywords:
+                for keyword_l in keywords:
+                    keyword = keyword_l[0]
+                    distance = keyword_l[1]
                     if keyword in page_text:
                     # Add the filename to the search results dictionary
                         if keyword in search_results:
                             #search_results[keyword].append(filename)
-                            rec = {'id': sp_id, 'avg_dates': extract_dates(page_text, keyword, 400)}
-                            data_extraction.append(rec)
+                            rec[keyword] = extract_dates(page_text, keyword, distance)
+
                         else:
                             search_results[keyword] = [filename]
+
+            data_extraction.append(rec)
     except:
         print(filename)
 
